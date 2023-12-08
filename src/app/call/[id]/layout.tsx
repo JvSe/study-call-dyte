@@ -24,8 +24,8 @@ export default function CallLayout({
     initMeeting({
       authToken: userToken,
       defaults: {
-        audio: false,
-        video: false,
+        audio: true,
+        video: true,
       },
     });
   }, []);
