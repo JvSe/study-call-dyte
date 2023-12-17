@@ -1,32 +1,33 @@
 'use client'
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useMeet } from "@/hook/user";
+import { useAuth } from "@/hook/auth";
+import { useMeet } from "@/hook/meet";
+import { addUserMeet } from "@/lib/dyte/add-user-meet";
+import { createMeeting } from "@/lib/dyte/create-meet";
 import { useRouter } from 'next/navigation';
 import { useState } from "react";
-import { addUserMeet } from "./lib/add-user-meet";
-import { createMeeting } from "./lib/create-meet";
 
 import { Carousel } from 'react-responsive-carousel';
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 export default function Home() {
-  const [nick, setNick] = useState<string>('');
-  const [nameRoom, setNameRoom] = useState<string>('');
+  const [name, setName] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
   const { addIdMeet, addUserToken } = useMeet();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { signin } = useAuth();
 
   const route = useRouter();
 
   const handleCreateMeet = async () => {
     setIsLoading(true);
-    const meet = await createMeeting(nameRoom);
-    const userToken = await addUserMeet(meet.data.id, nick);
-
+    const userResponse = await signin({ email, name });
+    const meet = await createMeeting(`${name}'s Room`);
+    const userToken = await addUserMeet({ idMeet: meet.data.id, user: { ...userResponse.user! }, createRoom: true });
     addIdMeet(meet.data.id);
     addUserToken(userToken.data.token);
-
-    route.push(`/call/${meet.data.id}`)
+    route.push(`/call/${meet.data.id}`);
   }
 
   return (
@@ -42,8 +43,8 @@ export default function Home() {
         <div className="w-1/2 flex flex-col gap-8 items-center">
           <img className="w-44" src="/imgs/img-test.png" alt="logo" />
           <div className="flex flex-col w-full gap-2">
-            <Input placeholder="Name Room" onChange={e => setNameRoom(e.target.value)} />
-            <Input placeholder="Nickname" onChange={e => setNick(e.target.value)} />
+            <Input placeholder="E-mail" onChange={e => setEmail(e.target.value)} />
+            <Input placeholder="Name" onChange={e => setName(e.target.value)} />
           </div>
           <Button loading={isLoading} onClick={handleCreateMeet} className="w-full">Create Room</Button>
         </div>

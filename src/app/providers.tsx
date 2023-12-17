@@ -1,4 +1,5 @@
-import { MeetProvider } from "@/hook/user"
+import { AuthProvider } from "@/hook/auth"
+import { MeetProvider } from "@/hook/meet"
 import { ReactNode } from "react"
 
 type ProviderProps = {
@@ -6,8 +7,10 @@ type ProviderProps = {
 }
 export function Provider({ children }: ProviderProps) {
   return (
-    <MeetProvider>
-      {children}
-    </MeetProvider>
+    <AuthProvider>
+      <MeetProvider>
+        {children}
+      </MeetProvider>
+    </AuthProvider>
   )
 }
