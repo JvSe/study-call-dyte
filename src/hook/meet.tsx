@@ -1,5 +1,6 @@
 'use client'
-import { ReactNode, createContext, useContext, useState } from 'react';
+import { LocalStorageKeys } from '@/lib/localStorageName';
+import { ReactNode, createContext, useContext, useEffect, useState } from 'react';
 
 type MeetType = {
   children: ReactNode
@@ -20,11 +21,24 @@ function MeetProvider({ children }: MeetType) {
 
   const addUserToken = (value: string) => {
     setUserToken(value)
+    localStorage.setItem(LocalStorageKeys.USER_TOKEN, value)
   }
 
   const addIdMeet = (value: string) => {
     setIdMeet(value);
-  }
+  };
+
+  useEffect(() => {
+    const getInfosMeet = () => {
+      const userTokenSaved = localStorage.getItem(LocalStorageKeys.USER_TOKEN);
+
+      if (userTokenSaved !== null) {
+        setUserToken(userTokenSaved);
+      }
+    };
+    getInfosMeet();
+  }, []);
+
   return (
     <MeetContext.Provider
       value={{
