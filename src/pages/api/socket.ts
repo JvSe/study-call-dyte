@@ -10,6 +10,9 @@ export const config = {
   },
 };
 
+const PORT = Number(process.env.PORT);
+
+console.log("PORT =>", PORT);
 interface SocketServer extends HTTPServer {
   io?: IOServer | undefined;
 }
@@ -33,12 +36,12 @@ export default function SocketHandler(
     return;
   }
 
-  console.log("Starting Socket.IO server on port:", 3001);
+  console.log("Starting Socket.IO server on port:", PORT! + 1);
   const io = new Server({
     path: "/api/socket",
     addTrailingSlash: false,
     cors: { origin: "*" },
-  }).listen(3001);
+  }).listen(PORT);
 
   io.on("connect", (socket) => {
     const _socket = socket;
@@ -54,5 +57,5 @@ export default function SocketHandler(
   res.socket.server.io = io;
   res
     .status(201)
-    .json({ success: true, message: "Socket is started", socket: 3001 });
+    .json({ success: true, message: "Socket is started", socket: PORT });
 }
