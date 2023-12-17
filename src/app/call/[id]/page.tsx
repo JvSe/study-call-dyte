@@ -8,19 +8,10 @@ import { useEffect, useState } from 'react';
 import { Meeting } from '../components/Meeting';
 
 export default function Call({ params }: { params: { id: string } }) {
-
   const [client, initMeeting] = useDyteClient();
   const [isOpen, setIsOpen] = useState(false);
-
   const { user } = useAuth();
-
-  console.log("user =>", user)
-
   const { idMeet, userToken } = useMeet();
-  console.log("userToken =>", userToken);
-
-  console.log("isOpen => ", isOpen);
-  console.log("id => ", params.id);
 
   useEffect(() => {
     if (userToken !== undefined) {
