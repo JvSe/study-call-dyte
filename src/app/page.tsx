@@ -7,9 +7,10 @@ import { useMeet } from "@/hook/meet";
 import { addUserMeet } from "@/lib/dyte/add-user-meet";
 import { createMeeting } from "@/lib/dyte/create-meet";
 import { SingInValidation, singInValidation } from "@/lib/forms/signin-schema";
+import socketClient from "@/lib/socket/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from 'next/navigation';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 
 import { Carousel } from 'react-responsive-carousel';
@@ -41,6 +42,10 @@ export default function Home() {
     addUserToken(userToken.data.token);
     route.push(`/call/${meet.data.id}`);
   }
+
+  useEffect(() => {
+    socketClient();
+  }, [])
 
   return (
     <main className="w-screen h-screen flex">
