@@ -12,7 +12,6 @@ export const config = {
 
 const PORT = Number(process.env.PORT) || 3000;
 
-console.log("PORT =>", PORT);
 interface SocketServer extends HTTPServer {
   io?: IOServer | undefined;
 }
