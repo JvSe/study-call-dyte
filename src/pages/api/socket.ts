@@ -32,16 +32,16 @@ export default function SocketHandler(
   if (res.socket.server.io) {
     res
       .status(200)
-      .json({ success: true, message: "Socket is alredy running" });
+      .json({ success: true, message: `Socket is alredy running ${PORT + 1}` });
     return;
   }
 
-  console.log("Starting Socket.IO server on port:", PORT! + 1);
+  console.log("Starting Socket.IO server on port:", PORT + 1);
   const io = new Server({
     path: "/api/socket",
     addTrailingSlash: false,
     cors: { origin: "*" },
-  }).listen(PORT);
+  }).listen(PORT + 1);
 
   io.on("connect", (socket) => {
     const _socket = socket;
@@ -57,5 +57,5 @@ export default function SocketHandler(
   res.socket.server.io = io;
   res
     .status(201)
-    .json({ success: true, message: "Socket is started", socket: PORT });
+    .json({ success: true, message: "Socket is started", socket: PORT + 1 });
 }
