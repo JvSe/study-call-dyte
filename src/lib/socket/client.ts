@@ -4,10 +4,12 @@ const PORT = Number(process.env.PORT) || 3000;
 
 export default function socketClient() {
   console.log(`${PORT + 1}`);
+
   const socket = io(`:${PORT + 1}`, {
     path: "/api/socket",
     addTrailingSlash: false,
   });
+
   socket.on("connect", () => {
     console.log("Connected");
   });
