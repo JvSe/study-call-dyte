@@ -7,8 +7,8 @@ import { createClient } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 
 const supabase = createClient(
-  "https://xalabxrttxsngzokysxa.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhhbGFieHJ0dHhzbmd6b2t5c3hhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjE0ODc3NTMsImV4cCI6MjAzNzA2Mzc1M30.Xr7aLd0-HK7mZ_LllL0wKNUIb2TYFwv7JfKYPcoEi4s"
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_KEY!
 );
 
 export const useSupabase = () => {
