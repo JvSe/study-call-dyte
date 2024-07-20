@@ -1,19 +1,21 @@
-'use client'
-import { createUser } from '@/database/user/create-user';
-import { LocalStorageKeys } from '@/lib/localStorageName';
-import { User } from '@prisma/client';
-import { ReactNode, createContext, useContext, useEffect, useState } from 'react';
+"use client";
+import { createUser } from "@/database/user/create-user";
+import { User } from "@prisma/client";
+import { ReactNode, createContext, useContext, useState } from "react";
 
 type AuthType = {
-  children: ReactNode
+  children: ReactNode;
 };
 
-type SignIn = { email: string, name: string };
+type SignIn = { email: string; name: string };
 
 type AuthContextType = {
-  user: User,
-  signin: ({ email, name }: SignIn) => Promise<{ success: boolean, user?: User }>
-}
+  user: User;
+  signin: ({
+    email,
+    name,
+  }: SignIn) => Promise<{ success: boolean; user?: User }>;
+};
 
 const AuthContext = createContext({} as AuthContextType);
 
@@ -25,41 +27,23 @@ function AuthProvider({ children }: AuthType) {
       email,
       name,
     });
-
-    if (user.success) {
-      localStorage.setItem(LocalStorageKeys.USER, JSON.stringify({ ...user.user }));
-      setUser({ ...user.user! });
-    }
-
     return user;
-  }
-
-  useEffect(() => {
-    const getUserLocal = () => {
-      const userLogged = localStorage.getItem(LocalStorageKeys.USER);
-      if (userLogged !== null) {
-        setUser(JSON.parse(userLogged))
-      }
-    }
-
-    getUserLocal();
-  }, [])
+  };
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        signin
+        signin,
       }}
     >
-
       {children}
     </AuthContext.Provider>
-  )
-};
+  );
+}
 
 function useAuth() {
   return useContext(AuthContext);
-};
+}
 
 export { AuthProvider, useAuth };

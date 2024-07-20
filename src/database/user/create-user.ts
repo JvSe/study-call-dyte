@@ -10,7 +10,7 @@ export const createUser = async ({
   name: string;
 }) => {
   const userInBD = await prisma.user.findUnique({
-    where: { email: email },
+    where: { email },
   });
 
   if (userInBD) {
@@ -21,11 +21,12 @@ export const createUser = async ({
     data: {
       email,
       name,
-      photo: `https://ui-avatars.com/api/?name=${name.replace(" ", "+")}`,
+      photo: `https://avatar.iran.liara.run/public`,
+      online: true,
     },
   });
 
   if (user) return { success: true, user: user };
 
-  return { success: false };
+  return { success: true };
 };

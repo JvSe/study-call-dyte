@@ -11,8 +11,43 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  photo String
+  id          String       @id @default(uuid())
+  email       String       @unique
+  name        String
+  photo       String
+  online      Boolean?     @default(true)
+  participant Participant?
+
+  @@map("users")
+}
+
+model Meeting {
+  id                   String        @id @default(uuid())
+  title                String
+  preferred_region     String?
+  created_at           DateTime
+  updated_at           DateTime
+  record_on_start      Boolean
+  live_stream_on_start Boolean
+  persist_chat         Boolean
+  summarize_on_end     Boolean
+  is_large             Boolean
+  status               String
+  recording_config     String?       @default("NOT-CONFIGURED")
+  participants         Participant[]
+
+  @@map("mettings")
+}
+
+model Participant {
+  id        String @id @default(uuid())
+  role_call String @default("group_call_host")
+
+  user_id String @unique
+  user    User   @relation(fields: [user_id], references: [id])
+
+  meeting_id String
+  meeting    Meeting @relation(fields: [meeting_id], references: [id])
+
+  @@map("participans")
 }

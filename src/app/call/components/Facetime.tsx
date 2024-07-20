@@ -4,7 +4,6 @@ import {
   DyteNameTag,
   DyteParticipantsAudio,
   DyteParticipantTile,
-  DyteSimpleGrid,
 } from "@dytesdk/react-ui-kit";
 import { useDyteMeeting, useDyteSelector } from "@dytesdk/react-web-core";
 import clsx from "clsx";
@@ -21,32 +20,8 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
-function Grid() {
-  const { meeting } = useDyteMeeting();
-  const participants = useDyteSelector((m) => m.participants.active);
-
-  return (
-    <div className="relative flex place-items-center justify-center w-full h-full overflow-hidden -m-4">
-      {participants.size === 0 && (
-        <p className="text-2xl">People haven't joined yet.</p>
-      )}
-      {participants.size > 0 && (
-        <DyteSimpleGrid
-          size="xl"
-          participants={participants.toArray()}
-          meeting={meeting}
-          gap={0}
-          aspectRatio="16:9"
-        />
-      )}
-    </div>
-  );
-}
-
 function Controlbar() {
   const { meeting } = useDyteMeeting();
-
-  const participants = useDyteSelector((m) => m.participants.joined);
 
   const { videoEnabled, audioEnabled } = useDyteSelector((m) => ({
     videoEnabled: m.self.videoEnabled,
@@ -145,8 +120,8 @@ function Controlbar() {
 function VideoCall() {
   const { meeting } = useDyteMeeting();
   const meta = useDyteSelector((meeting) => meeting.meta);
-  const [count, setCount] = useState(0);
   const participants = useDyteSelector((m) => m.participants.active);
+  const [count, setCount] = useState(0);
 
   const participant = participants.toArray()[0];
 
@@ -190,21 +165,23 @@ function VideoCall() {
           <div className="flex-grow flex-shrink-0 relative flex flex-wrap content-center justify-center gap-4 p-4 rounded-3xl bg-black">
             {/* <Grid /> */}
 
-            <DyteParticipantTile
-              participant={participant}
-              meeting={meeting}
-              key={participant.id}
-              className="z-10 shadow-black shadow-2xl  w-full h-full duration-0"
-            >
-              <DyteAvatar participant={participant} size="md" />
-              <DyteNameTag participant={participant} size="md">
-                <DyteAudioVisualizer
-                  participant={participant}
-                  size="md"
-                  slot="start"
-                />
-              </DyteNameTag>
-            </DyteParticipantTile>
+            {participant !== undefined && (
+              <DyteParticipantTile
+                participant={participant}
+                meeting={meeting}
+                key={participant.id}
+                className="z-10 shadow-black shadow-2xl  w-full h-full duration-0"
+              >
+                <DyteAvatar participant={participant} size="md" />
+                <DyteNameTag participant={participant} size="md">
+                  <DyteAudioVisualizer
+                    participant={participant}
+                    size="md"
+                    slot="start"
+                  />
+                </DyteNameTag>
+              </DyteParticipantTile>
+            )}
 
             <DyteParticipantTile
               participant={meeting.self}
@@ -232,10 +209,6 @@ function VideoCall() {
 }
 
 export default function Meeting() {
-  const { meeting } = useDyteMeeting();
-
-  const self = useDyteSelector((meeting) => meeting.self);
-
   const roomJoined = useDyteSelector((meeting) => meeting.self.roomJoined);
 
   if (!roomJoined) {

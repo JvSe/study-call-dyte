@@ -1,3 +1,5 @@
+"use server";
+
 import { User } from "@prisma/client";
 import axios from "axios";
 import { v4 } from "uuid";
@@ -9,8 +11,6 @@ type AddUserMeet = {
 };
 
 async function addUserMeet({ idMeet, user, createRoom = false }: AddUserMeet) {
-  console.log("user => ", user);
-  console.log("photo =>", user.photo);
   const response = await axios.post(
     `https://api.dyte.io/v2/meetings/${idMeet}/participants`,
     {
