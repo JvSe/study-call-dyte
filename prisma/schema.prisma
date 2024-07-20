@@ -1,22 +1,20 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
-  id          String       @id @default(uuid())
-  email       String       @unique
+  id          String        @id @default(uuid())
+  email       String        @unique
   name        String
   photo       String
-  online      Boolean?     @default(true)
-  participant Participant?
+  online      Boolean?      @default(true)
+  participant Participant[]
 
   @@map("users")
 }
@@ -43,7 +41,7 @@ model Participant {
   id        String @id @default(uuid())
   role_call String @default("group_call_host")
 
-  user_id String @unique
+  user_id String
   user    User   @relation(fields: [user_id], references: [id])
 
   meeting_id String

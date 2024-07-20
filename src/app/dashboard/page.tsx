@@ -7,25 +7,53 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { createMeeting } from "@/database/meet/create-meet";
-import { getUsers } from "@/database/user/get-user";
+import { useSupabase } from "@/hook/use-supabase";
 import { useAuth } from "@/store/use-auth";
-import { User } from "@prisma/client";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
-  const [users, setUsers] = useState([] as User[]);
+  // const [users, setUsers] = useState([] as User[]);
+  const { users } = useSupabase();
 
-  const userAuth = useAuth((s) => s.user);
+  const [userAuth, signout] = useAuth((s) => [s.user, s.signout]);
+  const route = useRouter();
 
-  useEffect(() => {
-    const fetchOnlineUsers = async () => {
-      const response = await getUsers();
-      const data = response.users;
-      setUsers(data.filter((u) => u.id !== userAuth.id));
-    };
+  const handleSignout = () => {
+    signout();
 
-    fetchOnlineUsers();
-  }, [userAuth]);
+    route.push("/");
+  };
+
+  // useEffect(() => {
+  //   // Fetch initial logged in users
+  //   async function fetchLoggedInUsers() {
+  //     if (userAuth.id !== undefined) {
+  //       const { data, error } = await supabase
+  //         .from("users")
+  //         .select("*")
+  //         .neq("id", userAuth.id)
+  //         .eq("online", true);
+
+  //       if (error) {
+  //         console.error("Error fetching logged in users:", error);
+  //       } else {
+  //         setUsers(data);
+  //       }
+  //     }
+  //   }
+
+  //   fetchLoggedInUsers();
+  // }, [userAuth]);
+
+  // useEffect(() => {
+  //   const fetchOnlineUsers = async () => {
+  //     const response = await getUsers();
+  //     const data = response.users;
+  //     setUsers(data.filter((u) => u.id !== userAuth.id));
+  //   };
+
+  //   fetchOnlineUsers();
+  // }, [userAuth]);
 
   const handleCreateAMeet = async (idParticipant: string) => {
     const meet = await createMeeting({
@@ -42,6 +70,8 @@ export default function DashboardPage() {
     // addUserToken(userToken.data.token);
 
     console.log(meet);
+
+    route.push(`/call/${meet.id}`);
   };
 
   return (
@@ -57,6 +87,7 @@ export default function DashboardPage() {
         </div>
       </div>
       <div className="w-full h-full flex flex-col py-14 gap-2 items-center justify-center">
+        {users.length === 0 && <p className="mt-auto">Nenhum usuário logado</p>}
         {users.map((user) => (
           <GlassMorphismAction
             className="mt-auto"
@@ -72,7 +103,11 @@ export default function DashboardPage() {
             </div>
           </GlassMorphismAction>
         ))}
-        <Button className="mt-auto">Entrar na call</Button>
+        <div className="flex gap-2 mt-auto">
+          <Button onClick={handleSignout} variant="secondary" className="w-32">
+            Sair
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -1,7 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useMeet } from "@/hook/meet";
 import { useAuth } from "@/store/use-auth";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -12,7 +11,6 @@ import "react-responsive-carousel/lib/styles/carousel.min.css";
 export default function Home() {
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
-  const { addIdMeet, addUserToken } = useMeet();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const signin = useAuth((s) => s.signin);
@@ -21,16 +19,7 @@ export default function Home() {
 
   const handleCreateMeet = async () => {
     setIsLoading(true);
-    const userResponse = await signin({ email, name });
-
-    // const meet = await createMeeting(`${name}'s Room`);
-    // const userToken = await addUserMeet({
-    //   idMeet: meet.data.id,
-    //   user: { ...userResponse.user! },
-    //   createRoom: true,
-    // });
-    // addIdMeet(meet.data.id);
-    // addUserToken(userToken.data.token);
+    await signin({ email, name });
 
     route.push(`/dashboard`);
   };
