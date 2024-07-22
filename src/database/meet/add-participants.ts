@@ -28,8 +28,7 @@ async function addUserMeet({
     },
     {
       headers: {
-        Authorization:
-          "Basic ZjA4MjM2OTQtNTlhYy00NjAzLWFlYWEtYjY5YTY5ODVhN2Q4OjY5YzdjMDcxNWZmODk0OGE1YTNl",
+        Authorization: `Basic ${process.env.DYTE_TOKEN}`,
         "Content-Type": "application/json",
       },
     }
