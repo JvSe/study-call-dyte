@@ -1,47 +1,70 @@
 "use client";
 import { Spinner } from "@/components/ui/spinner";
+import { addUserMeet } from "@/database/meet/add-participants";
+import { getMeet } from "@/database/meet/get-meet";
 import { getParticipantMeet } from "@/database/user/get-participant";
 import { updateParticipant } from "@/database/user/update-participant";
+import { useSupabase } from "@/hook/use-supabase";
+import { CallEnum } from "@/lib/call-enum";
 import { useAuth } from "@/store/use-auth";
-import { useMeet } from "@/store/use-meet";
 import { DyteProvider, useDyteClient } from "@dytesdk/react-web-core";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Facetime from "../components/Facetime";
 
 export default function Call({ params }: { params: { id: string } }) {
   const [client, initMeeting] = useDyteClient();
   const user = useAuth((s) => s.user);
 
-  const [token, addMeetId, notifyUser] = useMeet((s) => [
-    s.userToken,
-    s.addMeetId,
-    s.updateNotifyUser,
-  ]);
+  const [token, setToken] = useState<string | null>(null);
 
-  console.log("token =>", token);
+  const { roomIsAlready } = useSupabase();
 
   const updateStatusInRoom = useCallback(async () => {
     const participant = (
       await getParticipantMeet({ userID: user.id, meetingId: params.id })
     ).participant;
 
-    const participantInRoom = await updateParticipant({
-      ...participant![0],
-      in_room: true,
-    });
-  }, [user, params]);
+    if (!participant![0].in_room) {
+      await updateParticipant({
+        ...participant![0],
+        in_room: true,
+      });
+    }
+    setToken(participant![0].user_token);
+  }, [user, params, roomIsAlready]);
+
+  const addUsersOnMeeting = async () => {
+    const idMeet = params.id;
+    const participants = (await getMeet(idMeet)).meet?.participants;
+
+    await Promise.all(
+      participants!.map(async (participant) => {
+        await addUserMeet({
+          user: participant.user,
+          idParticipant: participant.id,
+          idMeet: idMeet,
+          type_preset: participant.role_call as CallEnum,
+        });
+      })
+    );
+  };
 
   useEffect(() => {
-    updateStatusInRoom();
+    addUsersOnMeeting();
   }, []);
 
   useEffect(() => {
-    if (token !== null) {
+    if (roomIsAlready) updateStatusInRoom();
+  }, [updateStatusInRoom, roomIsAlready]);
+
+  useEffect(() => {
+    console.log("token =>", token);
+    if (token !== null && token.length > 5) {
       initMeeting({
         authToken: token,
         defaults: {
-          audio: true,
-          video: true,
+          audio: false,
+          video: false,
         },
       }).then((m) => m?.joinRoom());
     }

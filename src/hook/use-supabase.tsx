@@ -5,9 +5,6 @@ import { useAuth } from "@/store/use-auth";
 import { Participant, User } from "@prisma/client";
 import { useEffect, useState } from "react";
 
-import { addUserMeet } from "@/database/meet/add-participants";
-import { getMeet } from "@/database/meet/get-meet";
-import { getParticipantMeet } from "@/database/user/get-participant";
 import { CallEnum } from "@/lib/call-enum";
 import { useMeet } from "@/store/use-meet";
 import { createClient } from "@supabase/supabase-js";
@@ -27,27 +24,6 @@ export const useSupabase = () => {
     s.updateNotifyUser,
     s.addUserToken,
   ]);
-
-  const addUsersOnMeeting = async (idMeet: string) => {
-    const participants = (await getMeet(idMeet)).meet?.participants;
-
-    console.log("passei por aqui");
-
-    await Promise.all(
-      participants!.map(async (participant) => {
-        await addUserMeet({
-          user: participant.user,
-          idParticipant: participant.id,
-          idMeet: idMeet,
-          type_preset: participant.role_call as CallEnum,
-        });
-      })
-    );
-
-    const participant = (
-      await getParticipantMeet({ userID: userAuth.id, meetingId: idMeet })
-    ).participant;
-  };
 
   useEffect(() => {
     // Fetch initial logged in users
@@ -84,32 +60,26 @@ export const useSupabase = () => {
       .on(
         "postgres_changes",
         {
-          event: "*",
+          event: "UPDATE",
           schema: "public",
-          table: "participans",
+          table: "participants",
         },
         (payload) => {
           const participant = payload.new as Participant;
-          console.log(participant.user_token);
-          // if (participant.user_token) {
-          //   if (
-          //     payload.errors === null &&
-          //     participant.role_call === CallEnum.HOST
-          //   ) {
-          //     notifyUser({
-          //       notify: true,
-          //       type: CallEnum.PARTICIPANT,
-          //     });
-          //     addMeetId(participant.meeting_id);
-          //   } else if (
-          //     payload.errors === null &&
-          //     participant.role_call === CallEnum.PARTICIPANT
-          //   ) {
-          //     addUsersOnMeeting(participant.meeting_id);
-          //   }
-          // } else {
-          //   addUserToken(participant.user_token);
-          // }
+
+          if (participant.role_call == CallEnum.HOST) {
+            notifyUser({
+              notify: true,
+              type: CallEnum.PARTICIPANT,
+            });
+            addMeetId(participant.meeting_id);
+          }
+
+          if (
+            participant.user_token !== null &&
+            participant.user_token.length > 5
+          )
+            setRoomIsAlready(true);
         }
       )
       .subscribe();

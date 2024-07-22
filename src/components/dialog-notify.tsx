@@ -6,7 +6,6 @@ import { CallEnum } from "@/lib/call-enum";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/store/use-auth";
 import { useMeet } from "@/store/use-meet";
-import { Participant } from "@prisma/client";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "./ui/button";
@@ -18,11 +17,7 @@ type DialogModalProps = {
 export function DialogModal({ className }: DialogModalProps) {
   const [notifyUser, meetId] = useMeet((s) => [s.notifyUser, s.meetId]);
   const user = useAuth((s) => s.user);
-
-  const [userFormatted, setUserFormatted] = useState({
-    ...user,
-    participant: {} as Participant,
-  });
+  const [open, onOpen] = useState<boolean>(false);
 
   const updateStatusInRoom = useCallback(async () => {
     if (meetId) {
@@ -31,10 +26,10 @@ export function DialogModal({ className }: DialogModalProps) {
       ).participant;
 
       if (participant) {
-        setUserFormatted((prev) => ({
-          ...prev,
-          participant: participant![0],
-        }));
+        onOpen(
+          participant![0].role_call === CallEnum.PARTICIPANT &&
+            notifyUser.notify
+        );
       }
     }
   }, [user, meetId, notifyUser]);
@@ -44,12 +39,7 @@ export function DialogModal({ className }: DialogModalProps) {
   }, [updateStatusInRoom]);
 
   return (
-    <Dialog
-      open={
-        userFormatted?.participant?.role_call === CallEnum.PARTICIPANT &&
-        notifyUser.notify
-      }
-    >
+    <Dialog open={open} onOpenChange={onOpen}>
       <DialogContent
         className={cn(
           "gap-12 h-screen max-h-screen overflow-y-auto md:h-auto flex flex-col ",
