@@ -33,13 +33,16 @@ model Meeting {
   status               String
   recording_config     String?       @default("NOT-CONFIGURED")
   participants         Participant[]
+  is_answered          Boolean       @default(false)
 
-  @@map("mettings")
+  @@map("meetings")
 }
 
 model Participant {
-  id        String @id @default(uuid())
-  role_call String @default("group_call_host")
+  id         String  @id @default(uuid())
+  role_call  String  @default("group_call_host")
+  user_token String  @default("")
+  in_room    Boolean @default(false)
 
   user_id String
   user    User   @relation(fields: [user_id], references: [id])

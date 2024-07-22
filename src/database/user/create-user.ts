@@ -31,5 +31,5 @@ export const createUser = async ({
 
   if (user) return { success: true, user: user };
 
-  return { success: true };
+  return { success: false };
 };

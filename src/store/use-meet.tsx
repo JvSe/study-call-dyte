@@ -1,22 +1,32 @@
+import { CallEnum } from "@/lib/call-enum";
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 
 interface AuthStore {
-  userToken: string;
-  meetId: string;
+  userToken: string | null;
+  meetId: string | null;
+  notifyUser: {
+    type: CallEnum;
+    notify: boolean;
+  };
+
+  updateNotifyUser: (notify: { type: CallEnum; notify: boolean }) => void;
 
   addUserToken: (token: string) => void;
   addMeetId: (id: string) => void;
 }
 
-export const useAuth = create(
-  persist<AuthStore>(
-    (set, get) => ({
-      userToken: "",
-      meetId: "",
-      addUserToken: (userToken) => set({ userToken }),
-      addMeetId: (meetId) => set({ meetId }),
+export const useMeet = create<AuthStore>((set, get) => ({
+  userToken: null,
+  meetId: null,
+  notifyUser: {
+    notify: false,
+    type: CallEnum.PARTICIPANT,
+  },
+
+  updateNotifyUser: (notifyUser) =>
+    set({
+      notifyUser,
     }),
-    { name: "call-persisted" }
-  )
-);
+  addUserToken: (userToken) => set({ userToken }),
+  addMeetId: (meetId) => set({ meetId }),
+}));

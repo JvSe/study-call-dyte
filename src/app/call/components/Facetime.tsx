@@ -108,7 +108,7 @@ function Controlbar() {
             "w-[67px] h-[60px] ml-14 border flex items-center justify-center rounded-md",
             "bg-[#F04848] border-[#4D5C7740] text-white"
           )}
-          // onClick={leaveMeeting}
+          onClick={leaveMeeting}
         >
           <Phone size={26} className="rotate-[135deg]" />
         </button>
