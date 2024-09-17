@@ -1,18 +1,62 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  photo String
+  id          String        @id @default(uuid())
+  email       String        @unique
+  name        String
+  photo       String
+  online      Boolean?      @default(true)
+  participant Participant[]
+
+  @@map("users")
+}
+
+model Meeting {
+  id                   String        @id @default(uuid())
+  title                String
+  preferred_region     String?
+  created_at           DateTime
+  updated_at           DateTime
+  record_on_start      Boolean
+  live_stream_on_start Boolean
+  persist_chat         Boolean
+  summarize_on_end     Boolean
+  is_large             Boolean
+  status               String
+  participants         Participant[]
+  ready                Boolean       @default(false)
+
+  @@map("meetings")
+}
+
+model Participant {
+  id         String  @id @default(uuid())
+  role_call  String  @default("group_call_host")
+  user_token String  @default("")
+  in_room    Boolean @default(false)
+
+  user_id String
+  user    User   @relation(fields: [user_id], references: [id])
+
+  meeting_id String
+  meeting    Meeting @relation(fields: [meeting_id], references: [id])
+
+  @@map("participants")
+}
+
+model WebhookEvent {
+  id      String @id @default(uuid())
+  event   String
+  meeting Json?
+  reason  String
+
+  @@map("webhook")
 }
