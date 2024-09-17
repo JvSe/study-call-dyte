@@ -1,12 +1,10 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/store/use-auth";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-
-import { Carousel } from "react-responsive-carousel";
-import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 export default function Home() {
   const [name, setName] = useState<string>("");
@@ -25,51 +23,32 @@ export default function Home() {
   };
 
   return (
-    <main className="w-screen h-screen bg-white flex">
-      <div className="w-1/2 h-full hidden lg:flex items-center justify-center">
-        <Carousel
-          infiniteLoop
-          dynamicHeight
-          showThumbs={false}
-          autoPlay
-          className="h-screen w-full object-cover"
-          showArrows={true}
-        >
-          <img
-            className="h-screen object-cover"
-            src="/imgs/valorant.jpg"
-            alt="valorant"
-          />
-          <img
-            className="h-screen object-cover"
-            src="/imgs/lol.jpg"
-            alt="lol"
-          />
-          <img className="h-screen object-cover" src="/imgs/r6.jpg" alt="r6" />
-        </Carousel>
-      </div>
-      <div className="w-full lg:w-1/2 h-full flex items-center justify-center">
-        <div className="w-1/2 flex flex-col gap-8 items-center">
-          <img className="w-44" src="/imgs/img-test.png" alt="logo" />
-          <div className="flex flex-col w-full gap-2">
-            <Input
-              placeholder="E-mail"
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <Input
-              placeholder="Name"
-              onChange={(e) => setName(e.target.value)}
-            />
+    <main className="w-screen h-screen bg-white flex items-center">
+      <Card className="w-[550px] h-min mx-auto shadow-lg">
+        <CardContent className="py-10">
+          <div className="w-full flex flex-col gap-8 items-center">
+            <img className="w-44" src="/imgs/img-test.png" alt="logo" />
+            <div className="flex flex-col w-full gap-2">
+              <Input
+                placeholder="E-mail"
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <Input
+                placeholder="Name"
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+            <Button
+              loading={isLoading}
+              onClick={handleCreateMeet}
+              className="w-full"
+              type="button"
+            >
+              Login
+            </Button>
           </div>
-          <Button
-            loading={isLoading}
-            onClick={handleCreateMeet}
-            className="w-full"
-          >
-            Login
-          </Button>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </main>
   );
 }

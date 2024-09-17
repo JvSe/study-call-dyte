@@ -9,7 +9,6 @@ export const getParticipantMeet = async ({
   userID: string;
   meetingId: string;
 }) => {
-  console.log(userID);
   const participant = await prisma.user
     .findUnique({
       where: {

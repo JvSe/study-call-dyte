@@ -31,9 +31,8 @@ model Meeting {
   summarize_on_end     Boolean
   is_large             Boolean
   status               String
-  recording_config     String?       @default("NOT-CONFIGURED")
   participants         Participant[]
-  is_answered          Boolean       @default(false)
+  ready                Boolean       @default(false)
 
   @@map("meetings")
 }

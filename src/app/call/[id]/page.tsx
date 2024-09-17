@@ -1,74 +1,55 @@
 "use client";
 import { Spinner } from "@/components/ui/spinner";
-import { addUserMeet } from "@/database/meet/add-participants";
-import { getMeet } from "@/database/meet/get-meet";
 import { getParticipantMeet } from "@/database/user/get-participant";
-import { updateParticipant } from "@/database/user/update-participant";
-import { useSupabase } from "@/hook/use-supabase";
-import { CallEnum } from "@/lib/call-enum";
 import { useAuth } from "@/store/use-auth";
+import { useMeet } from "@/store/use-meet";
 import { DyteProvider, useDyteClient } from "@dytesdk/react-web-core";
-import { useCallback, useEffect, useState } from "react";
-import Facetime from "../components/Facetime";
+import { useParams } from "next/navigation";
+import { useCallback, useEffect } from "react";
+import Facetime from "../../../components/video-call/screens";
 
 export default function Call({ params }: { params: { id: string } }) {
   const [client, initMeeting] = useDyteClient();
   const user = useAuth((s) => s.user);
+  const [addMeetID, addUserToken] = useMeet((s) => [
+    s.addMeetId,
+    s.addUserToken,
+  ]);
+  const { id } = useParams<{ id: string }>();
 
-  const [token, setToken] = useState<string | null>(null);
-
-  const { roomIsAlready } = useSupabase();
-
-  const updateStatusInRoom = useCallback(async () => {
-    const participant = (
-      await getParticipantMeet({ userID: user.id, meetingId: params.id })
-    ).participant;
-
-    if (!participant![0].in_room) {
-      await updateParticipant({
-        ...participant![0],
-        in_room: true,
+  const handleGetTokenParticipant = useCallback(async () => {
+    if (user.id) {
+      const { success, participant } = await getParticipantMeet({
+        meetingId: id,
+        userID: user.id,
       });
+
+      if (success) {
+        addUserToken(participant![0].user_token);
+        alert(participant![0].user_token);
+      }
     }
-    setToken(participant![0].user_token);
-  }, [user, params, roomIsAlready]);
-
-  const addUsersOnMeeting = async () => {
-    const idMeet = params.id;
-    const participants = (await getMeet(idMeet)).meet?.participants;
-
-    await Promise.all(
-      participants!.map(async (participant) => {
-        await addUserMeet({
-          user: participant.user,
-          idParticipant: participant.id,
-          idMeet: idMeet,
-          type_preset: participant.role_call as CallEnum,
-        });
-      })
-    );
-  };
+  }, [user]);
 
   useEffect(() => {
-    addUsersOnMeeting();
+    handleGetTokenParticipant();
+  }, [handleGetTokenParticipant, user]);
+
+  useEffect(() => {
+    addMeetID(id);
   }, []);
 
-  useEffect(() => {
-    if (roomIsAlready) updateStatusInRoom();
-  }, [updateStatusInRoom, roomIsAlready]);
-
-  useEffect(() => {
-    console.log("token =>", token);
-    if (token !== null && token.length > 5) {
-      initMeeting({
-        authToken: token,
-        defaults: {
-          audio: false,
-          video: false,
-        },
-      }).then((m) => m?.joinRoom());
-    }
-  }, [token]);
+  // useEffect(() => {
+  //   if (token !== null && token.length > 5) {
+  //     initMeeting({
+  //       authToken: token,
+  //       defaults: {
+  //         audio: false,
+  //         video: false,
+  //       },
+  //     }).then((m) => m?.joinRoom());
+  //   }
+  // }, [token]);
 
   return (
     <DyteProvider

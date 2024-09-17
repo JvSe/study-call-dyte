@@ -1,7 +1,9 @@
 import { createUser } from "@/database/user/create-user";
 import { updateUsers } from "@/database/user/update-user";
 import { User } from "@prisma/client";
+import { shared } from "use-broadcast-ts";
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 interface AuthStore {
   user: User;
@@ -13,29 +15,36 @@ interface AuthStore {
   signout: () => Promise<void>;
 }
 
-const initialState = {
-  user: {} as User,
-};
+export const useAuth = create(
+  shared(
+    persist<AuthStore>(
+      (set, get) => ({
+        user: {} as User,
+        signin: async ({ email, name }) => {
+          const response = await createUser({
+            email,
+            name,
+          });
 
-export const useAuth = create<AuthStore>((set, get) => ({
-  ...initialState,
-  signin: async ({ email, name }) => {
-    const response = await createUser({
-      email,
-      name,
-    });
+          const { user } = response;
 
-    const { user } = response;
+          set({ user });
+          return response;
+        },
 
-    set({ user });
-    return response;
-  },
+        signout: async () => {
+          const response = await updateUsers({ ...get().user, online: false });
 
-  signout: async () => {
-    const response = await updateUsers({ ...get().user, online: false });
-
-    if (response.success) {
-      set({ user: {} as User });
-    }
-  },
-}));
+          if (response.success) {
+            set({ user: {} as User });
+          }
+        },
+      }),
+      {
+        name: "@call-dyte:user-auth",
+        storage: createJSONStorage(() => localStorage),
+      }
+    ),
+    { name: "@call-dyte:broadcast-user-auth" }
+  )
+);

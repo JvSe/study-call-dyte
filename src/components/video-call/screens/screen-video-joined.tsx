@@ -5,120 +5,15 @@ import {
   DyteParticipantsAudio,
   DyteParticipantTile,
 } from "@dytesdk/react-ui-kit";
-import { useDyteMeeting, useDyteSelector } from "@dytesdk/react-web-core";
-import clsx from "clsx";
+import { useDyteSelector } from "@dytesdk/react-web-core";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale/pt-BR";
-import {
-  Airplay,
-  MessageSquare,
-  Mic,
-  MicOff,
-  Phone,
-  Video,
-  VideoOff,
-} from "lucide-react";
+import { Video } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { VideoCallCoreProps } from ".";
+import { ControlsBar } from "../controls";
 
-function Controlbar() {
-  const { meeting } = useDyteMeeting();
-
-  const { videoEnabled, audioEnabled } = useDyteSelector((m) => ({
-    videoEnabled: m.self.videoEnabled,
-    audioEnabled: m.self.audioEnabled,
-  }));
-
-  const toggleCamera = () => {
-    if (meeting.self.videoEnabled) {
-      meeting.self.disableVideo();
-    } else {
-      meeting.self.enableVideo();
-    }
-  };
-
-  const toggleMic = () => {
-    if (meeting.self.audioEnabled) {
-      meeting.self.disableAudio();
-    } else {
-      meeting.self.enableAudio();
-    }
-  };
-
-  const leaveMeeting = () => {
-    meeting.leaveRoom();
-  };
-
-  return (
-    <footer className="py-2 w-full flex gap-4 justify-center">
-      <div className="flex gap-2 ml-auto">
-        <button
-          className={clsx(
-            "w-[67px] h-[60px] border flex items-center justify-center rounded-md",
-            audioEnabled
-              ? "bg-[#FFFFFF0D] border-[#4D5C7740] text-white"
-              : "bg-[#F04848] text-white border-none"
-          )}
-          onClick={toggleMic}
-        >
-          {audioEnabled ? <Mic size={26} /> : <MicOff size={26} />}
-        </button>
-        <button
-          className={clsx(
-            "w-[67px] h-[60px] border flex items-center justify-center rounded-md",
-            videoEnabled
-              ? "bg-[#FFFFFF0D] border-[#4D5C7740] text-white"
-              : "bg-[#F04848] text-white border-none"
-          )}
-          onClick={toggleCamera}
-        >
-          {videoEnabled ? <Video size={26} /> : <VideoOff size={26} />}
-        </button>
-        <button
-          className={clsx(
-            "w-[67px] h-[60px] border flex items-center justify-center rounded-md",
-            "bg-[#FFFFFF0D] border-[#4D5C7740] text-white"
-          )}
-          // onClick={leaveMeeting}
-        >
-          <Airplay size={26} />
-        </button>
-      </div>
-
-      <div className="flex gap-2 ml-auto">
-        <button
-          className={clsx(
-            "w-[67px] h-[60px] border flex items-center justify-center rounded-md",
-            "bg-[#FFFFFF0D] border-[#4D5C7740] text-white"
-          )}
-          onClick={toggleMic}
-        >
-          <MessageSquare size={26} />
-        </button>
-        <button
-          className={clsx(
-            "w-[67px] h-[60px] border flex items-center justify-center rounded-md",
-            "bg-[#69AEFF] border-[#4D5C7740] text-[#1F2123]"
-          )}
-          onClick={toggleCamera}
-        >
-          <p className="text-2xl mb-2">...</p>
-        </button>
-        <button
-          className={clsx(
-            "w-[67px] h-[60px] ml-14 border flex items-center justify-center rounded-md",
-            "bg-[#F04848] border-[#4D5C7740] text-white"
-          )}
-          onClick={leaveMeeting}
-        >
-          <Phone size={26} className="rotate-[135deg]" />
-        </button>
-      </div>
-    </footer>
-  );
-}
-
-function VideoCall() {
-  const { meeting } = useDyteMeeting();
+export function ScreenJoined({ meeting, ...rest }: VideoCallCoreProps) {
   const meta = useDyteSelector((meeting) => meeting.meta);
   const participants = useDyteSelector((m) => m.participants.active);
   const [count, setCount] = useState(0);
@@ -203,21 +98,7 @@ function VideoCall() {
 
         <div className="col-span-2 bg-white rounded-3xl"></div>
       </main>
-      <Controlbar />
+      <ControlsBar />
     </div>
   );
-}
-
-export default function Meeting() {
-  const roomJoined = useDyteSelector((meeting) => meeting.self.roomJoined);
-
-  if (!roomJoined) {
-    return (
-      <div className="bg-black text-white w-full h-full flex place-items-center justify-center">
-        <p className="text-2xl">You are not in the meeting.</p>
-      </div>
-    );
-  }
-
-  return <VideoCall />;
 }

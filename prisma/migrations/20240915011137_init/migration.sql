@@ -22,28 +22,28 @@ CREATE TABLE "meetings" (
     "summarize_on_end" BOOLEAN NOT NULL,
     "is_large" BOOLEAN NOT NULL,
     "status" TEXT NOT NULL,
-    "recording_config" TEXT DEFAULT 'NOT-CONFIGURED',
-    "is_answered" BOOLEAN NOT NULL DEFAULT false,
+    "ready" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "meetings_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "participans" (
+CREATE TABLE "participants" (
     "id" TEXT NOT NULL,
     "role_call" TEXT NOT NULL DEFAULT 'group_call_host',
+    "user_token" TEXT NOT NULL DEFAULT '',
     "in_room" BOOLEAN NOT NULL DEFAULT false,
     "user_id" TEXT NOT NULL,
     "meeting_id" TEXT NOT NULL,
 
-    CONSTRAINT "participans_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "participants_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
 -- AddForeignKey
-ALTER TABLE "participans" ADD CONSTRAINT "participans_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "participants" ADD CONSTRAINT "participants_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "participans" ADD CONSTRAINT "participans_meeting_id_fkey" FOREIGN KEY ("meeting_id") REFERENCES "meetings"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "participants" ADD CONSTRAINT "participants_meeting_id_fkey" FOREIGN KEY ("meeting_id") REFERENCES "meetings"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

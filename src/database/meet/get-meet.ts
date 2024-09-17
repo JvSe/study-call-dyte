@@ -3,7 +3,6 @@
 import { prisma } from "../prisma";
 
 export const getMeet = async (meetID: string) => {
-  console.log(meetID);
   const meet = await prisma.meeting.findUnique({
     where: {
       id: meetID,

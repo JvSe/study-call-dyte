@@ -23,9 +23,9 @@ export const createUser = async ({
       },
     });
   } else {
-    await prisma.user.update({
+    user = await prisma.user.update({
       where: { email },
-      data: { online: true },
+      data: { online: true, name },
     });
   }
 

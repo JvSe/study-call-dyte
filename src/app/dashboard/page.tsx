@@ -30,7 +30,7 @@ export default function DashboardPage() {
       idParticipant: idParticipant,
     });
 
-    route.push(`/call/${meet.id}`);
+    window.open(`/call/${meet.id}`);
   };
 
   return (
