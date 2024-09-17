@@ -22,7 +22,7 @@ export const getParticipantMeet = async ({
         },
       },
     })
-    .then((r) => r?.participant);
+    .then((r) => r?.participant[0]);
 
   return { success: true, participant };
 };

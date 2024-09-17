@@ -2,7 +2,7 @@
 
 import { getUsers } from "@/database/user/get-user";
 import { useAuth } from "@/store/use-auth";
-import { User } from "@prisma/client";
+import { Meeting, User } from "@prisma/client";
 import { useEffect, useState } from "react";
 
 import { useMeet } from "@/store/use-meet";
@@ -16,6 +16,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 export const useSupabase = () => {
   const [userAuth] = useAuth((s) => [s.user]);
   const [users, setUsers] = useState<User[]>([] as User[]);
+  const [meet, setMeet] = useState<Meeting>({} as Meeting);
 
   const [meetId, addMeetId, notifyUser, addUserToken] = useMeet((s) => [
     s.meetId,
@@ -66,7 +67,8 @@ export const useSupabase = () => {
           filter: `id=eq.${meetId}`,
         },
         (payload) => {
-          console.log("meeting", payload.new);
+          console.log(payload);
+          setMeet(payload.new as Meeting);
         }
       )
       .subscribe();
@@ -79,6 +81,7 @@ export const useSupabase = () => {
 
   return {
     users,
+    meet,
     supabase,
   };
 };

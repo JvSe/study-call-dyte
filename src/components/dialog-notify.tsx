@@ -27,8 +27,7 @@ export function DialogModal({ className }: DialogModalProps) {
 
       if (participant) {
         onOpen(
-          participant![0].role_call === CallEnum.PARTICIPANT &&
-            notifyUser.notify
+          participant.role_call === CallEnum.PARTICIPANT && notifyUser.notify
         );
       }
     }

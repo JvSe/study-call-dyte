@@ -51,3 +51,12 @@ model Participant {
 
   @@map("participants")
 }
+
+model WebhookEvent {
+  id      String @id @default(uuid())
+  event   String
+  meeting Json?
+  reason  String
+
+  @@map("webhook")
+}

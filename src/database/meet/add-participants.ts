@@ -12,12 +12,26 @@ type AddUserMeet = {
   type_preset: CallEnum;
 };
 
+type ReturnAddUserInMeet = {
+  success: boolean;
+  data: {
+    id: string;
+    name: string;
+    picture: string;
+    custom_participant_id: string;
+    preset_name: string;
+    created_at: Date;
+    updated_at: Date;
+    token: string;
+  };
+};
+
 async function addUserMeet({
   idMeet,
   idParticipant,
   user,
   type_preset,
-}: AddUserMeet) {
+}: AddUserMeet): Promise<ReturnAddUserInMeet> {
   const response = await axios.post(
     `https://api.dyte.io/v2/meetings/${idMeet}/participants`,
     {
@@ -34,14 +48,38 @@ async function addUserMeet({
     }
   );
 
+  const { data } = response.data as ReturnAddUserInMeet;
+
   await prisma.participant.update({
     where: {
       id: idParticipant,
     },
     data: {
-      user_token: response.data.data.token,
+      user_token: data.token,
+      in_room: true,
     },
   });
+
+  const meet = await prisma.meeting.findUnique({
+    where: { id: idMeet },
+    include: {
+      participants: true,
+    },
+  });
+
+  let isReady: boolean[] = [];
+
+  meet?.participants.forEach((participant) => {
+    isReady.push(participant.in_room);
+  });
+
+  if (isReady.find((v) => v == false) === undefined)
+    await prisma.meeting.update({
+      where: { id: idMeet },
+      data: {
+        ready: true,
+      },
+    });
 
   return response.data;
 }
